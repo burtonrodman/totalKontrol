@@ -6,7 +6,11 @@ namespace totalKontrol.Console
     {
         static void Main(string[] args)
         {
-            using (var controller = new Core.MidiController(".\\nanoKONTROL2.controller", new ConsoleLogger()))
+            var _logger = new ConsoleLogger();
+            using (var controller = new Core.MidiController(
+                ".\\nanoKONTROL2.controller",
+                ".\\nanoKONTROL2.commands",
+                _logger))
             {
                 controller.Start();
 

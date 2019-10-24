@@ -1,0 +1,8 @@
+{
+    "CommandMappings": [
+        {
+            "ControlName": "FADER_8",
+            "Command": "ChangeVolume"
+        }
+    ]
+}

@@ -2,19 +2,24 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using totalKontrol.Core.Commands;
+
 namespace totalKontrol.Core
 {
     public class MidiController : IDisposable
     {
         private readonly string _definitionPath;
+        private readonly string _profilePath;
         private readonly ILogger _logger;
         private MidiOut _midiOut;
         private MidiIn _midiIn;
         private ControllerDefinition _controllerDef;
+        private UserProfile _userProfile;
 
-        public MidiController(string definitionPath, ILogger logger)
+        public MidiController(string definitionPath, string profilePath, ILogger logger)
         {
             _definitionPath = definitionPath;
+            _profilePath = profilePath;
             _logger = logger;
         }
 
@@ -22,6 +27,8 @@ namespace totalKontrol.Core
         {
             _controllerDef = JsonConvert.DeserializeObject<ControllerDefinition>(
                 File.ReadAllText(_definitionPath));
+            _userProfile = JsonConvert.DeserializeObject<UserProfile>(
+                File.ReadAllText(_profilePath));
 
             _midiIn = FindMidiIn(_controllerDef.MidiInName);
             _midiOut = FindMidiOut(_controllerDef.MidiOutName);
@@ -49,7 +56,7 @@ namespace totalKontrol.Core
                                 break;
                         }
 
-                        if (result is SetLightOffResult || result is SetLightOnResult)
+                        if (result?.ReflectEvent ?? false)
                         {
                             _midiOut.Send(cce.GetAsShortMessage());
                         }
@@ -59,7 +66,6 @@ namespace totalKontrol.Core
             }
             else
             {
-                var midi = e.MidiEvent;
                 _logger.WriteLine($"Message 0x{e.RawMessage:X8} Event {e.MidiEvent}");
             }
         }
@@ -81,6 +87,14 @@ namespace totalKontrol.Core
         public HandlerResult HandleFaderEvent(Control control, int value)
         {
             _logger.WriteLine($"fader {control.Name} changed to {value}");
+            foreach (var mapping in _userProfile.CommandMappings)
+            {
+                if (mapping.ControlName == control.Name)
+                {
+                    var command = CommandFactory.Create(mapping.Command);
+                    command.Execute(value, null);
+                }
+            }
             return null;
         }
 
