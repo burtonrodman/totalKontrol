@@ -1,0 +1,266 @@
+﻿{
+    "MidiInName": "nanoKONTROL2 1 SLIDER/KNOB",
+    "MidiOutName": "nanoKONTROL2 1 CTRL",
+    "Channel": 1,
+
+    "Controls": [
+        {
+            "Type": "Button",
+            "Name": "TRACK_PREV",
+            "Controller": 58
+        },
+        {
+            "Type": "Button",
+            "Name": "TRACK_NEXT",
+            "Controller": 59
+        },
+
+        {
+            "Type": "Button",
+            "Name": "CYCLE",
+            "Controller": 46
+        },
+
+        {
+            "Type": "Button",
+            "Name": "MARKER_SET",
+            "Controller": 60
+        },
+        {
+            "Type": "Button",
+            "Name": "MARKER_PREV",
+            "Controller": 61
+        },
+        {
+            "Type": "Button",
+            "Name": "MARKER_PREV",
+            "Controller": 62
+        },
+
+        {
+            "Type": "Button",
+            "Name": "TRANSPORT_REW",
+            "Controller": 43
+        },
+        {
+            "Type": "Button",
+            "Name": "TRANSPORT_FWD",
+            "Controller": 44
+        },
+        {
+            "Type": "Button",
+            "Name": "TRANSPORT_STOP",
+            "Controller": 42
+        },
+        {
+            "Type": "Button",
+            "Name": "TRANSPORT_PLAY_PAUSE",
+            "Controller": 41
+        },
+        {
+            "Type": "Button",
+            "Name": "TRANSPORT_RECORD",
+            "Controller": 45
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_1",
+            "Controller": 32
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_1",
+            "Controller": 48
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_1",
+            "Controller": 64
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_1",
+            "Controller": 0
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_1",
+            "Controller": 16
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_2",
+            "Controller": 33
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_2",
+            "Controller": 49
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_2",
+            "Controller": 65
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_2",
+            "Controller": 1
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_2",
+            "Controller": 17
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_3",
+            "Controller": 34
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_3",
+            "Controller": 50
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_3",
+            "Controller": 66
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_3",
+            "Controller": 2
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_3",
+            "Controller": 18
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_4",
+            "Controller": 35
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_4",
+            "Controller": 51
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_4",
+            "Controller": 67
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_4",
+            "Controller": 3
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_4",
+            "Controller": 19
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_5",
+            "Controller": 36
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_5",
+            "Controller": 52
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_5",
+            "Controller": 68
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_5",
+            "Controller": 4
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_5",
+            "Controller": 20
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_6",
+            "Controller": 37
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_6",
+            "Controller": 53
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_6",
+            "Controller": 69
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_6",
+            "Controller": 5
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_6",
+            "Controller": 21
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_7",
+            "Controller": 38
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_7",
+            "Controller": 54
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_7",
+            "Controller": 70
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_7",
+            "Controller": 6
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_7",
+            "Controller": 22
+        },
+        {
+            "Type": "Button",
+            "Name": "SOLO_8",
+            "Controller": 39
+        },
+        {
+            "Type": "Button",
+            "Name": "MUTE_8",
+            "Controller": 55
+        },
+        {
+            "Type": "Button",
+            "Name": "ARM_8",
+            "Controller": 71
+        },
+        {
+            "Type": "Fader",
+            "Name": "FADER_8",
+            "Controller": 7
+        },
+        {
+            "Type": "Fader",
+            "Name": "KNOB_8",
+            "Controller": 23
+        }
+    ]
+}
