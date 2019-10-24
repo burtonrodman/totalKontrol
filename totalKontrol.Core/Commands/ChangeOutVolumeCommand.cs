@@ -2,7 +2,7 @@
 
 namespace totalKontrol.Core.Commands
 {
-    public class ChangeVolumeCommand : ICommand
+    public class ChangeOutVolumeCommand : ICommand
     {
         private static AudioEndpointVolume _volume = null;
 
@@ -17,7 +17,11 @@ namespace totalKontrol.Core.Commands
                 }
             }
 
-            _volume.MasterVolumeLevelScalar = ((float)value / 127.0f);
+            var newVolume = ((float)value / 127.0f);
+            if (_volume.MasterVolumeLevelScalar - newVolume < 0.05)
+            {
+                _volume.MasterVolumeLevelScalar = newVolume;
+            }
             //    foreach (var device in devices)
             //    {
             //        _logger.WriteLine(device.DeviceFriendlyName);

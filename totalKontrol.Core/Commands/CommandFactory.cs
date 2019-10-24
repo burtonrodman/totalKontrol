@@ -6,7 +6,8 @@
         {
             switch (name)
             {
-                case "ChangeVolume":  return new ChangeVolumeCommand();
+                case "ChangeOutVolume":  return new ChangeOutVolumeCommand();
+                case "MuteOutVolume": return new MuteOutVolumeCommand();
             }
 
             return null;

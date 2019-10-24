@@ -72,6 +72,15 @@ namespace totalKontrol.Core
 
         public HandlerResult HandleButtonEvent(Control control, int value)
         {
+            foreach (var mapping in _userProfile.CommandMappings)
+            {
+                if (mapping.ControlName == control.Name)
+                {
+                    var command = CommandFactory.Create(mapping.Command);
+                    command.Execute(value, null);
+                }
+            }
+
             switch (value)
             {
                 case 0:
@@ -86,7 +95,6 @@ namespace totalKontrol.Core
 
         public HandlerResult HandleFaderEvent(Control control, int value)
         {
-            _logger.WriteLine($"fader {control.Name} changed to {value}");
             foreach (var mapping in _userProfile.CommandMappings)
             {
                 if (mapping.ControlName == control.Name)

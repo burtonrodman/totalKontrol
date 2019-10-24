@@ -1,8 +1,12 @@
 {
-    "CommandMappings": [
-        {
-            "ControlName": "FADER_8",
-            "Command": "ChangeVolume"
-        }
-    ]
+  "CommandMappings": [
+    {
+      "ControlName": "FADER_8",
+      "Command": "ChangeOutVolume"
+    },
+    {
+      "ControlName": "MUTE_8",
+      "Command":  "MuteOutVolume"
+    }
+  ]
 }
