@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using totalKontrol.Core.Device;
 
 namespace totalKontrol.Console
 {
@@ -7,18 +8,20 @@ namespace totalKontrol.Console
         static void Main(string[] args)
         {
             var _logger = new ConsoleLogger();
-            using (var controller = new Core.MidiController(
-                ".\\nanoKONTROL2.controller",
-                ".\\nanoKONTROL2.commands",
-                _logger))
+            using (var _locator = new MMDeviceLocator())
             {
-                controller.Start();
-
-                while (true)
+                using (var controller = new Core.MidiController(
+                    ".\\nanoKONTROL2.controller",
+                    ".\\nanoKONTROL2.commands",
+                    _logger, _locator))
                 {
-                    Thread.Sleep(30000);
-                }
+                    controller.Start();
 
+                    while (true)
+                    {
+                        Thread.Sleep(30000);
+                    }
+                }
             }
         }
     }

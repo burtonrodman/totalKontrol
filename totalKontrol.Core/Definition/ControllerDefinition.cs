@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace totalKontrol.Core
+namespace totalKontrol.Core.Definition
 {
     public class ControllerDefinition
     {
@@ -9,5 +9,6 @@ namespace totalKontrol.Core
         public string MidiOutName { get; set; }
         public int Channel { get; set; }
         public ICollection<Control> Controls { get; set; }
+        public ICollection<ControlGroupDefinition> ControlGroups { get; set; }
     }
 }

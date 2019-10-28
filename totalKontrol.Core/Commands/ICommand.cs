@@ -1,7 +1,9 @@
-﻿namespace totalKontrol.Core.Commands
+﻿using totalKontrol.Core.Profile;
+
+namespace totalKontrol.Core.Commands
 {
     public interface ICommand
     {
-        void Execute(int value, string[] parameters);
+        void Execute(int value, ControlGroup controlGroup);
     }
 }

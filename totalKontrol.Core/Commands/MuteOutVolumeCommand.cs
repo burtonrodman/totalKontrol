@@ -1,33 +1,31 @@
-﻿using NAudio.CoreAudioApi;
+﻿using totalKontrol.Core.Profile;
 
 namespace totalKontrol.Core.Commands
 {
     public class MuteOutVolumeCommand : ICommand
     {
-        private static AudioEndpointVolume _volume = null;
+        private readonly IDeviceLocator _deviceLocator;
 
-        public void Execute(int value, string[] parameters)
+        public MuteOutVolumeCommand(IDeviceLocator deviceLocator)
         {
-            if (_volume is null)
-            {
-                using (var enumerator = new MMDeviceEnumerator())
-                {
-                    var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                    _volume = device.AudioEndpointVolume;
-                }
-            }
+            _deviceLocator = deviceLocator;
+        }
 
-            if (value == 127) // press
-            {
-                var currentMute = _volume.Mute;
-                _volume.Mute = !currentMute;
-            }
+        public void Execute(int value, ControlGroup controlGroup)
+        {
 
-            // get current mute status
-            // get new must status
-            // if button press
-            // if button release
+            //if (value == 127) // press
+            //{
+            //    controlGroup.IsMuted = !controlGroup.IsMuted;
+
+            //    foreach (var volumeTarget in _deviceLocator.FindVolumeOutTargetsBySubstring(controlGroup.DeviceOrSession))
+            //    {
+            //        volumeTarget.SetMute(controlGroup.IsMuted);
+            //    }
+
+            //}
 
         }
+
     }
 }

@@ -2,12 +2,12 @@
 {
     public static class CommandFactory
     {
-        public static ICommand Create(string name)
+        public static ICommand Create(string name, IDeviceLocator deviceLocator)
         {
             switch (name)
             {
-                case "ChangeOutVolume":  return new ChangeOutVolumeCommand();
-                case "MuteOutVolume": return new MuteOutVolumeCommand();
+                case "ChangeOutVolume":  return new ChangeOutVolumeCommand(deviceLocator);
+                case "MuteOutVolume": return new MuteOutVolumeCommand(deviceLocator);
             }
 
             return null;

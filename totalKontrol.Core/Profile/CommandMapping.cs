@@ -1,4 +1,4 @@
-﻿namespace totalKontrol.Core
+﻿namespace totalKontrol.Core.Profile
 {
     public class CommandMapping
     {

@@ -1,12 +1,42 @@
 {
+  "ControlGroups": [
+    {
+      "Name": "Group 1",
+      "DeviceOrSession": "Microsoft Teams"
+    },
+    {
+      "Name": "Group 6",
+      "DeviceOrSession": "Dock"
+    },
+    {
+      "Name": "Group 7",
+      "DeviceOrSession": "Mpow"
+    },
+    {
+      "Name": "Group 8",
+      "DeviceOrSession": "Master"
+    }
+  ],
   "CommandMappings": [
     {
-      "ControlName": "FADER_8",
+      "ControlName": "FADER_\\d",
       "Command": "ChangeOutVolume"
     },
     {
-      "ControlName": "MUTE_8",
-      "Command":  "MuteOutVolume"
+      "ControlName": "KNOB_\\d",
+      "Command": "ChangeInVolume"
+    },
+    {
+      "ControlName": "MUTE_\\d",
+      "Command": "MuteOutVolume"
+    },
+    {
+      "ControlName": "SOLO_\\d",
+      "Command": "SselectControlGroup"
+    },
+    {
+      "ControlName": "ARM_\\d",
+      "Command": "ArmRecord"
     }
   ]
 }

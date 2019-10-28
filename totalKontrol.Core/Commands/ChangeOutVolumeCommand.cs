@@ -1,58 +1,31 @@
-﻿using NAudio.CoreAudioApi;
+﻿using totalKontrol.Core.Profile;
 
 namespace totalKontrol.Core.Commands
 {
     public class ChangeOutVolumeCommand : ICommand
     {
-        private static AudioEndpointVolume _volume = null;
+        private readonly IDeviceLocator _deviceLocator;
 
-        public void Execute(int value, string[] parameters)
+        public ChangeOutVolumeCommand(IDeviceLocator deviceLocator)
         {
-            if (_volume is null)
+            _deviceLocator = deviceLocator;
+        }
+
+        public void Execute(int value, ControlGroup controlGroup)
+        {
+
+            if (!string.IsNullOrWhiteSpace(controlGroup?.DeviceOrSession))
             {
-                using (var enumerator = new MMDeviceEnumerator())
+                var newVolume = ((float)value / 127.0f);
+                foreach (var volumeTarget in _deviceLocator.FindVolumeOutTargetsBySubstring(controlGroup.DeviceOrSession))
                 {
-                    var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                    _volume = device.AudioEndpointVolume;
+                    //if (Math.Abs(volumeTarget.GetVolume() - newVolume) < 0.05)
+                    //{
+                    volumeTarget.SetVolume(newVolume);
+                    //}
                 }
             }
 
-            var newVolume = ((float)value / 127.0f);
-            if (_volume.MasterVolumeLevelScalar - newVolume < 0.05)
-            {
-                _volume.MasterVolumeLevelScalar = newVolume;
-            }
-            //    foreach (var device in devices)
-            //    {
-            //        _logger.WriteLine(device.DeviceFriendlyName);
-
-            //        if (device.FriendlyName.Contains("Mpow"))
-            //        {
-            //            device.AudioEndpointVolume.MasterVolumeLevelScalar = 0.75f;
-            //        }
-
-            //        var sessions = device.AudioSessionManager.Sessions;
-            //        for (int i = 0; i < sessions.Count; i++)
-            //        {
-            //            var session = sessions[i];
-            //            if (session.State != AudioSessionState.AudioSessionStateExpired)
-            //            {
-            //                _logger.WriteLine($"\t*{session.DisplayName}");
-
-            //                if (session.IsSystemSoundsSession)
-            //                {
-            //                    _logger.WriteLine("\tSystem sounds");
-            //                }
-            //                else
-            //                {
-            //                    var process = Process.GetProcessById((int)session.GetProcessID);
-            //                    _logger.WriteLine($"\t{process?.ProcessName}");
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //}
         }
     }
 }

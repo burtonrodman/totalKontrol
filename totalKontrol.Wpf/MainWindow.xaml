@@ -4,9 +4,38 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:totalKontrol.Wpf"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        mc:Ignorable="d" Title="MainWindow" Height="310.698" Width="1097.723" Background="Black" Loaded="Window_Loaded">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+            <local:ControlGroupUserControl x:Name="Group1" />
+            <local:ControlGroupUserControl x:Name="Group2" />
+            <local:ControlGroupUserControl x:Name="Group3" />
+            <local:ControlGroupUserControl x:Name="Group4" />
+            <local:ControlGroupUserControl x:Name="Group5" />
+            <local:ControlGroupUserControl x:Name="Group6" />
+            <local:ControlGroupUserControl x:Name="Group7" />
+            <local:ControlGroupUserControl x:Name="Group8" />
+        </StackPanel>
+        <StackPanel>
+            <TextBlock>TRACK</TextBlock>
+            <Button>&lt;</Button>
+            <Button>&gt;</Button>
+            <Button>CYCLE</Button>
+            <TextBlock>MARKER</TextBlock>
+            <Button>SET</Button>
+            <Button>&lt;</Button>
+            <Button>&gt;</Button>
+            <TextBlock>TRANSPORT</TextBlock>
+            <Button>&lt;&lt;</Button>
+            <Button>&gt;&gt;</Button>
+            <Button>STOP</Button>
+            <Button>PLAY/PAUSE</Button>
+            <Button>RECORD</Button>
+        </StackPanel>
+    </DockPanel>
 </Window>

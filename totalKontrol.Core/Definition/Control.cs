@@ -1,4 +1,4 @@
-﻿namespace totalKontrol.Core
+﻿namespace totalKontrol.Core.Definition
 {
     public class Control
     {

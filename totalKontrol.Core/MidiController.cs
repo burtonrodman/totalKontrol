@@ -2,7 +2,11 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using totalKontrol.Core.Commands;
+using totalKontrol.Core.Definition;
+using totalKontrol.Core.Profile;
 
 namespace totalKontrol.Core
 {
@@ -11,16 +15,18 @@ namespace totalKontrol.Core
         private readonly string _definitionPath;
         private readonly string _profilePath;
         private readonly ILogger _logger;
+        private readonly IDeviceLocator _deviceLocator;
         private MidiOut _midiOut;
         private MidiIn _midiIn;
         private ControllerDefinition _controllerDef;
         private UserProfile _userProfile;
 
-        public MidiController(string definitionPath, string profilePath, ILogger logger)
+        public MidiController(string definitionPath, string profilePath, ILogger logger, IDeviceLocator deviceLocator)
         {
             _definitionPath = definitionPath;
             _profilePath = profilePath;
             _logger = logger;
+            _deviceLocator = deviceLocator;
         }
 
         public void Start()
@@ -72,12 +78,13 @@ namespace totalKontrol.Core
 
         public HandlerResult HandleButtonEvent(Control control, int value)
         {
+            var controlGroup = GetControlGroup(control.Name);
             foreach (var mapping in _userProfile.CommandMappings)
             {
-                if (mapping.ControlName == control.Name)
+                if (Regex.IsMatch(control.Name, mapping.ControlName))
                 {
-                    var command = CommandFactory.Create(mapping.Command);
-                    command.Execute(value, null);
+                    var command = CommandFactory.Create(mapping.Command, _deviceLocator);
+                    command?.Execute(value, controlGroup);
                 }
             }
 
@@ -85,9 +92,11 @@ namespace totalKontrol.Core
             {
                 case 0:
                     _logger.WriteLine($"button {control.Name} released");
+                    OnControlChanged(new ControlChangedEventArgs() { ControlGroup = controlGroup, ControlName = control.Name, Value = value, IsIlluminated = false });
                     return new SetLightOffResult();
                 case 127:
                     _logger.WriteLine($"button {control.Name} pressed");
+                    OnControlChanged(new ControlChangedEventArgs() { ControlGroup = controlGroup, ControlName = control.Name, Value = value, IsIlluminated = true });
                     return new SetLightOnResult();
             }
             return null;
@@ -95,20 +104,33 @@ namespace totalKontrol.Core
 
         public HandlerResult HandleFaderEvent(Control control, int value)
         {
+            var controlGroup = GetControlGroup(control.Name);
             foreach (var mapping in _userProfile.CommandMappings)
             {
-                if (mapping.ControlName == control.Name)
+                if (Regex.IsMatch(control.Name, mapping.ControlName))
                 {
-                    var command = CommandFactory.Create(mapping.Command);
-                    command.Execute(value, null);
+                    var command = CommandFactory.Create(mapping.Command, _deviceLocator);
+                    command?.Execute(value, controlGroup);
                 }
             }
+            OnControlChanged(new ControlChangedEventArgs() { ControlGroup = controlGroup, ControlName = control.Name, Value = value });
             return null;
+        }
+
+        private ControlGroup GetControlGroup(string controlName)
+        {
+            var controlGroupDef = _controllerDef.ControlGroups.FirstOrDefault(g => g.ControlNames.Contains(controlName));
+            var controlGroup = _userProfile.ControlGroups.FirstOrDefault(g => g.Name == controlGroupDef.Name);
+            if (controlGroupDef != null && controlGroup is null)
+            {
+                controlGroup = new ControlGroup() { Name = controlGroupDef.Name };
+                _userProfile.ControlGroups.Add(controlGroup);
+            }
+            return controlGroup;
         }
 
         private void MidiIn_ErrorReceived(object sender, MidiInMessageEventArgs e)
         {
-            var midi = e.MidiEvent;
             _logger.WriteLine($"Message 0x{e.RawMessage:X8} Event {e.MidiEvent}\n");
         }
 
@@ -143,5 +165,20 @@ namespace totalKontrol.Core
             _midiIn.Dispose();
             _midiOut.Dispose();
         }
+
+        public delegate void ControlChangedEventHandler(object sender, ControlChangedEventArgs e);
+        public event ControlChangedEventHandler ControlChanged;
+        protected void OnControlChanged(ControlChangedEventArgs args)
+        {
+            ControlChanged?.Invoke(this, args);
+        }
+    }
+
+    public class ControlChangedEventArgs : EventArgs
+    {
+        public ControlGroup ControlGroup { get; set; }
+        public string ControlName { get; set; }
+        public int Value { get; set; }
+        public bool IsIlluminated { get; set; }
     }
 }
