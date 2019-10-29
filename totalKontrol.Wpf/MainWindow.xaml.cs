@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace totalKontrol.Wpf
             _deviceLocator = new MMDeviceLocator();
             _midiController = new MidiController(
                 ".\\nanoKONTROL2.controller", ".\\nanoKONTROL2.commands",
-                new NullLogger(), _deviceLocator);
+                new TraceLogger(), _deviceLocator);
 
             _midiController.ControlChanged += _midiController_ControlChanged;
 
@@ -57,9 +58,12 @@ namespace totalKontrol.Wpf
 
         private void _midiController_ControlChanged(object sender, ControlChangedEventArgs e)
         {
-            if (_controlGroups.TryGetValue(e.ControlGroup?.Name, out var control))
+            if (e.ControlGroup != null)
             {
-                control.HandelControlChangedEvent(e);
+                if (_controlGroups.TryGetValue(e.ControlGroup?.Name, out var control))
+                {
+                    control.HandelControlChangedEvent(e);
+                }
             }
         }
 
@@ -71,11 +75,11 @@ namespace totalKontrol.Wpf
         }
     }
 
-    public class NullLogger : ILogger
+    public class TraceLogger : ILogger
     {
         public void WriteLine(string message)
         {
-            // throw new NotImplementedException();
+            Trace.WriteLine(message);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace totalKontrol.Core.Commands
 {
-    public class MuteOutVolumeCommand : ICommand
+    public class MuteOutVolumeCommand : ButtonCommandBase
     {
         private readonly IDeviceLocator _deviceLocator;
 
@@ -11,21 +11,24 @@ namespace totalKontrol.Core.Commands
             _deviceLocator = deviceLocator;
         }
 
-        public void Execute(int value, ControlGroup controlGroup)
+        protected override void OnPress(int value, ControlGroup controlGroup)
         {
+            base.OnPress(value, controlGroup);
+            if (controlGroup.DeviceOrSession == "Master")
+            {
+                KeyboardHelpers.SendKeyPress(KeyCode.VOLUME_MUTE);
+            }
+            else
+            {
+                base.OnPress(value, controlGroup);
+                controlGroup.IsMuted = !controlGroup.IsMuted;
 
-            //if (value == 127) // press
-            //{
-            //    controlGroup.IsMuted = !controlGroup.IsMuted;
-
-            //    foreach (var volumeTarget in _deviceLocator.FindVolumeOutTargetsBySubstring(controlGroup.DeviceOrSession))
-            //    {
-            //        volumeTarget.SetMute(controlGroup.IsMuted);
-            //    }
-
-            //}
+                foreach (var volumeTarget in _deviceLocator.FindVolumeOutTargetsBySubstring(controlGroup.DeviceOrSession))
+                {
+                    volumeTarget.SetMute(controlGroup.IsMuted);
+                }
+            }
 
         }
-
     }
 }

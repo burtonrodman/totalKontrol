@@ -120,7 +120,7 @@ namespace totalKontrol.Core
         private ControlGroup GetControlGroup(string controlName)
         {
             var controlGroupDef = _controllerDef.ControlGroups.FirstOrDefault(g => g.ControlNames.Contains(controlName));
-            var controlGroup = _userProfile.ControlGroups.FirstOrDefault(g => g.Name == controlGroupDef.Name);
+            var controlGroup = _userProfile.ControlGroups.FirstOrDefault(g => g.Name == controlGroupDef?.Name);
             if (controlGroupDef != null && controlGroup is null)
             {
                 controlGroup = new ControlGroup() { Name = controlGroupDef.Name };

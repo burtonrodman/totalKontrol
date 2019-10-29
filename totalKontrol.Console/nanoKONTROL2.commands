@@ -37,6 +37,18 @@
     {
       "ControlName": "ARM_\\d",
       "Command": "ArmRecord"
+    },
+    {
+      "ControlName": "TRANSPORT_PLAY_PAUSE",
+      "Command": "PlayPauseTransport"
+    },
+    {
+      "ControlName": "TRACK_NEXT",
+      "Command": "TrackNext"
+    },
+    {
+      "ControlName": "TRANSPORT_STOP",
+      "Command": "StopTransport"
     }
   ]
 }
