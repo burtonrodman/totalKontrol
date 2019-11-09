@@ -1,34 +1,34 @@
-﻿using totalKontrol.Core.Profile;
+﻿using totalKontrol.Core.Definition;
+using totalKontrol.Core.Profile;
 
 namespace totalKontrol.Core.Commands
 {
     public class MuteOutVolumeCommand : ButtonCommandBase
     {
-        private IDeviceLocator _deviceLocator;
-        protected override void OnInitialize(IDeviceLocator deviceLocator)
+        public bool IsMuted { get; set; }
+
+        protected override bool OnPress()
         {
-            base.OnInitialize(deviceLocator);
-            _deviceLocator = deviceLocator;
+            base.OnPress();
+            IsMuted = !IsMuted;
+            return true;
         }
 
-        protected override void OnPress(int value, ControlGroup controlGroup)
+        protected override void OnExecuteCommand()
         {
-            base.OnPress(value, controlGroup);
-            if (controlGroup.DeviceOrSession == "Master")
+            base.OnExecuteCommand();
+
+            if (ControlGroup.DeviceOrSession == "Master")
             {
                 KeyboardHelpers.SendKeyPress(KeyCode.VOLUME_MUTE);
             }
             else
             {
-                base.OnPress(value, controlGroup);
-                controlGroup.IsMuted = !controlGroup.IsMuted;
-
-                foreach (var volumeTarget in _deviceLocator.FindVolumeOutTargetsBySubstring(controlGroup.DeviceOrSession))
+                foreach (var volumeTarget in DeviceLocator.FindVolumeOutTargetsBySubstring(ControlGroup.DeviceOrSession))
                 {
-                    volumeTarget.SetMute(controlGroup.IsMuted);
+                    volumeTarget.SetMute(IsMuted);
                 }
             }
-
         }
     }
 }

@@ -6,7 +6,5 @@ namespace totalKontrol.Core.Profile
     {
         public string Name { get; set; }
         public string DeviceOrSession { get; set; }
-
-        public bool IsMuted { get; set; }
     }
 }

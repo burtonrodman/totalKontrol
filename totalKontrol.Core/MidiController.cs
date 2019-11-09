@@ -1,9 +1,12 @@
 ﻿using NAudio.Midi;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using totalKontrol.Core.Commands;
 using totalKontrol.Core.Definition;
 using totalKontrol.Core.Profile;
@@ -20,9 +23,12 @@ namespace totalKontrol.Core
         private MidiIn _midiIn;
         private ControllerDefinition _controllerDef;
         private UserProfile _userProfile;
+        private ConcurrentQueue<MidiInMessageEventArgs> _eventQueue;
+        private Timer _timer;
 
         public MidiController(string definitionPath, string profilePath, ILogger logger, IDeviceLocator deviceLocator)
         {
+            _eventQueue = new ConcurrentQueue<MidiInMessageEventArgs>();
             _definitionPath = definitionPath;
             _profilePath = profilePath;
             _logger = logger;
@@ -43,79 +49,82 @@ namespace totalKontrol.Core
             _midiIn.Start();
         }
 
-        private void MidiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
+        private void StartTimer()
         {
-            if (e.MidiEvent is ControlChangeEvent cce)
+            if (_timer is null)
             {
-                foreach (var control in _controllerDef.Controls)
-                {
-                    if (control.Controller == (int)cce.Controller)
-                    {
-                        HandlerResult result = null;
-                        switch (control.Type)
-                        {
-                            case "Button":
-                                result = HandleButtonEvent(control, cce.ControllerValue);
-                                break;
-                            case "Fader":
-                                result = HandleFaderEvent(control, cce.ControllerValue);
-                                break;
-                        }
+                _timer = new Timer(TimerCallback, null, 250, 250);
+            }
+        }
 
-                        if (result?.ReflectEvent ?? false)
+        internal void SendControlChange(int controller, int value)
+        {
+            var midiEvent = new ControlChangeEvent(0, _controllerDef.Channel, (NAudio.Midi.MidiController)controller, value);
+            _midiOut.Send(midiEvent.GetAsShortMessage());
+        }
+
+        private void StopTimer()
+        {
+            _timer.Dispose();
+            _timer = null;
+        }
+
+        private void TimerCallback(object state)
+        {
+
+            StopTimer();
+
+            var commandsToExecute = new Dictionary<int, ICommand>();
+            while (_eventQueue.TryDequeue(out var e))
+            {
+                if (e.MidiEvent is ControlChangeEvent cce)
+                {
+                    var control = _controllerDef.Controls.FirstOrDefault(c => c.Controller == (int)cce.Controller);
+                    if (control != null)
+                    {
+                        var command = HandleButtonEvent(control, cce.ControllerValue);
+                        if (command != null && !commandsToExecute.ContainsKey(control.Controller))
                         {
-                            _midiOut.Send(cce.GetAsShortMessage());
+                            commandsToExecute.Add(control.Controller, command);
                         }
-                        return;
+                    }
+                }
+                else
+                {
+                    _logger.WriteLine($"Message 0x{e.RawMessage:X8} Event {e.MidiEvent}");
+                }
+            }
+
+            foreach (var command in commandsToExecute.Values)
+            {
+                command.ExecuteCommand();
+            }
+
+        }
+
+        public ICommand HandleButtonEvent(Control control, int value)
+        {
+            var controlGroup = GetControlGroup(control.Name);
+            foreach (var mapping in _userProfile.CommandMappings)
+            {
+                if (Regex.IsMatch(control.Name, mapping.ControlName))
+                {
+                    var command = CommandFactory.Create(mapping.Command, control, controlGroup, this, _logger, _deviceLocator);
+                    if (command?.ProcessEvent(value) ?? false)
+                    {
+                        return command;
                     }
                 }
             }
-            else
-            {
-                _logger.WriteLine($"Message 0x{e.RawMessage:X8} Event {e.MidiEvent}");
-            }
-        }
-
-        public HandlerResult HandleButtonEvent(Control control, int value)
-        {
-            var controlGroup = GetControlGroup(control.Name);
-            foreach (var mapping in _userProfile.CommandMappings)
-            {
-                if (Regex.IsMatch(control.Name, mapping.ControlName))
-                {
-                    var command = CommandFactory.Create(mapping.Command, _deviceLocator);
-                    command?.Execute(value, controlGroup);
-                }
-            }
-
-            switch (value)
-            {
-                case 0:
-                    _logger.WriteLine($"button {control.Name} released");
-                    OnControlChanged(new ControlChangedEventArgs() { ControlGroup = controlGroup, ControlName = control.Name, Value = value, IsIlluminated = false });
-                    return new SetLightOffResult();
-                case 127:
-                    _logger.WriteLine($"button {control.Name} pressed");
-                    OnControlChanged(new ControlChangedEventArgs() { ControlGroup = controlGroup, ControlName = control.Name, Value = value, IsIlluminated = true });
-                    return new SetLightOnResult();
-            }
             return null;
         }
 
-        public HandlerResult HandleFaderEvent(Control control, int value)
+        private void MidiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
-            var controlGroup = GetControlGroup(control.Name);
-            foreach (var mapping in _userProfile.CommandMappings)
-            {
-                if (Regex.IsMatch(control.Name, mapping.ControlName))
-                {
-                    var command = CommandFactory.Create(mapping.Command, _deviceLocator);
-                    command?.Execute(value, controlGroup);
-                }
-            }
-            OnControlChanged(new ControlChangedEventArgs() { ControlGroup = controlGroup, ControlName = control.Name, Value = value });
-            return null;
+            _eventQueue.Enqueue(e);
+            StartTimer();
         }
+
 
         private ControlGroup GetControlGroup(string controlName)
         {
@@ -162,16 +171,18 @@ namespace totalKontrol.Core
 
         public void Dispose()
         {
-            _midiIn.Dispose();
-            _midiOut.Dispose();
+            _midiIn?.Dispose();
+            _midiOut?.Dispose();
+            _timer?.Dispose();
         }
 
         public delegate void ControlChangedEventHandler(object sender, ControlChangedEventArgs e);
         public event ControlChangedEventHandler ControlChanged;
-        protected void OnControlChanged(ControlChangedEventArgs args)
+        public void OnControlChanged(ControlChangedEventArgs args)
         {
             ControlChanged?.Invoke(this, args);
         }
+
     }
 
     public class ControlChangedEventArgs : EventArgs
@@ -179,6 +190,6 @@ namespace totalKontrol.Core
         public ControlGroup ControlGroup { get; set; }
         public string ControlName { get; set; }
         public int Value { get; set; }
-        public bool IsIlluminated { get; set; }
+        public bool IsPressed { get; set; }
     }
 }

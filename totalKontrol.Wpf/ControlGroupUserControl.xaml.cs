@@ -28,15 +28,15 @@ namespace totalKontrol.Wpf
         {
             if (args.ControlName.StartsWith("MUTE"))
             {
-                _viewModel.MuteButtonBrush = args.IsIlluminated ? Brushes.Orange : Brushes.Black;
+                _viewModel.MuteButtonBrush = args.IsPressed ? Brushes.Orange : Brushes.Black;
             }
             if (args.ControlName.StartsWith("SOLO"))
             {
-                _viewModel.SoloButtonBrush = args.IsIlluminated ? Brushes.Orange : Brushes.Black;
+                _viewModel.SoloButtonBrush = args.IsPressed ? Brushes.Orange : Brushes.Black;
             }
             if (args.ControlName.StartsWith("ARM"))
             {
-                _viewModel.ArmButtonBrush = args.IsIlluminated ? Brushes.Orange : Brushes.Black;
+                _viewModel.ArmButtonBrush = args.IsPressed ? Brushes.Orange : Brushes.Black;
             }
             if (args.ControlName.StartsWith("KNOB"))
             {
