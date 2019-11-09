@@ -1,18 +1,38 @@
-﻿namespace totalKontrol.Core.Commands
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace totalKontrol.Core.Commands
 {
     public static class CommandFactory
     {
+        private static Dictionary<string, Type> _commands;
+
+        private static void InitializeCommands()
+        {
+            if (_commands is null)
+            {
+                var asm = typeof(ICommand).Assembly;
+                _commands = asm.GetTypes()
+                    .Where(t => typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                    .ToDictionary(c => c.Name);
+            }
+        }
+
         public static ICommand Create(string name, IDeviceLocator deviceLocator)
         {
-            switch (name)
-            {
-                case "ChangeOutVolume":  return new ChangeOutVolumeCommand(deviceLocator);
-                case "MuteOutVolume": return new MuteOutVolumeCommand(deviceLocator);
-                case "PlayPauseTransport": return new PlayPauseTransportCommand();
-                case "StopTransport": return new StopTransportCommand();
-                case "TrackNext": return new TrackNextCommand();
-            }
+            InitializeCommands();
 
+            if (_commands.TryGetValue(name, out var _commandType) ||
+                _commands.TryGetValue(name + "Command", out _commandType))
+            {
+                var commandInstance = Activator.CreateInstance(_commandType) as ICommand;
+                if (commandInstance != null)
+                {
+                    commandInstance.Initialize(deviceLocator);
+                }
+                return commandInstance;
+            }
             return null;
         }
     }

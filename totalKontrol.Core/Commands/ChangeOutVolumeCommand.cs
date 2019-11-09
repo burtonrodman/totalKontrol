@@ -1,13 +1,12 @@
-﻿using System;
-using totalKontrol.Core.Profile;
+﻿using totalKontrol.Core.Profile;
 
 namespace totalKontrol.Core.Commands
 {
     public class ChangeOutVolumeCommand : ICommand
     {
-        private readonly IDeviceLocator _deviceLocator;
+        private IDeviceLocator _deviceLocator;
 
-        public ChangeOutVolumeCommand(IDeviceLocator deviceLocator)
+        public void Initialize(IDeviceLocator deviceLocator)
         {
             _deviceLocator = deviceLocator;
         }
@@ -29,5 +28,6 @@ namespace totalKontrol.Core.Commands
             }
 
         }
+
     }
 }

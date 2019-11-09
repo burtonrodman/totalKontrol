@@ -4,6 +4,11 @@ namespace totalKontrol.Core.Commands
 {
     public abstract class ButtonCommandBase : ICommand
     {
+        public void Initialize(IDeviceLocator deviceLocator)
+        {
+            OnInitialize(deviceLocator);
+        }
+
         public void Execute(int value, ControlGroup controlGroup)
         {
             switch (value)
@@ -13,14 +18,16 @@ namespace totalKontrol.Core.Commands
             }
         }
 
+        protected virtual void OnInitialize(IDeviceLocator deviceLocator)
+        {
+        }
+
         protected virtual void OnPress(int value, ControlGroup controlGroup)
         {
-
         }
 
         protected virtual void OnRelease(int value, ControlGroup controlGroup)
         {
-
         }
     }
 }

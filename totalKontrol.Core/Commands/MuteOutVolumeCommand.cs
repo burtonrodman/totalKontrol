@@ -4,10 +4,10 @@ namespace totalKontrol.Core.Commands
 {
     public class MuteOutVolumeCommand : ButtonCommandBase
     {
-        private readonly IDeviceLocator _deviceLocator;
-
-        public MuteOutVolumeCommand(IDeviceLocator deviceLocator)
+        private IDeviceLocator _deviceLocator;
+        protected override void OnInitialize(IDeviceLocator deviceLocator)
         {
+            base.OnInitialize(deviceLocator);
             _deviceLocator = deviceLocator;
         }
 
