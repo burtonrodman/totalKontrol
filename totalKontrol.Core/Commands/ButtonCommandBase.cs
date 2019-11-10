@@ -1,21 +1,22 @@
-﻿using totalKontrol.Core.Definition;
+﻿using System;
+using totalKontrol.Core.Definition;
 using totalKontrol.Core.Profile;
 
 namespace totalKontrol.Core.Commands
 {
     public abstract class ButtonCommandBase : ICommand
     {
-        private Control _control;
         private MidiController _midiController;
-        private ILogger _logger;
+        protected Control Control { get; set; }
+        protected ILogger Logger { get; set; }
         protected ControlGroup ControlGroup { get; set; }
         protected IDeviceLocator DeviceLocator { get; set; }
 
         public void Initialize(Control control, ControlGroup controlGroup, MidiController midiController, ILogger logger, IDeviceLocator deviceLocator)
         {
-            _control = control;
             _midiController = midiController;
-            _logger = logger;
+            this.Control = control;
+            this.Logger = logger;
             this.ControlGroup = controlGroup;
             this.DeviceLocator = deviceLocator;
         }
@@ -24,45 +25,34 @@ namespace totalKontrol.Core.Commands
         {
             switch (value)
             {
-                case 0: return OnRelease(); 
-                case 127: return OnPress(); 
+                case 127: return OnPressInternal(OnPress, "pressed");
+                case 0: return OnPressInternal(OnRelease, "released");
             }
             return false;
         }
-        
-        protected virtual void OnExecuteCommand()
+
+        protected virtual (bool shouldExecute, bool isIlluminated) OnPress() => (false, false);
+        protected virtual (bool shouldExecute, bool isIlluminated) OnRelease() => (false, false);
+
+        private bool OnPressInternal(Func<(bool shouldExecute, bool isIlluminated)> func, string action)
         {
+            var (shouldExecute, isIlluminated) = func.Invoke();
+            Logger.WriteLine($"button {Control.Name} {action}");
+            _midiController.OnControlChanged(new ControlChangedEventArgs() { ControlGroup = ControlGroup, ControlName = Control.Name, IsPressed = isIlluminated });
+            SetLight(isIlluminated);
+            return shouldExecute;
         }
 
-        protected virtual bool OnPress()
-        {
-            _logger.WriteLine($"button {_control.Name} pressed");
-            _midiController.OnControlChanged(new ControlChangedEventArgs() { ControlGroup = ControlGroup, ControlName = _control.Name, IsPressed = true });
-            SetLightOn();
-            return false;
-        }
-
-        protected virtual bool OnRelease()
-        {
-            _logger.WriteLine($"button {_control.Name} released");
-            _midiController.OnControlChanged(new ControlChangedEventArgs() { ControlGroup = ControlGroup, ControlName = _control.Name, IsPressed = false });
-            SetLightOff();
-            return false;
-        }
+        protected virtual void OnExecuteCommand() { }
 
         public void ExecuteCommand()
         {
             OnExecuteCommand();
         }
 
-        protected void SetLightOn()
+        protected void SetLight(bool isIlluminated)
         {
-            _midiController.SendControlChange(_control.Controller, 127);
-        }
-
-        protected void SetLightOff()
-        {
-            _midiController.SendControlChange(_control.Controller, 0);
+            _midiController.SendControlChange(Control.Controller, isIlluminated ? 127 : 0);
         }
 
     }

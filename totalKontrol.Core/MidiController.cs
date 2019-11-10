@@ -23,12 +23,12 @@ namespace totalKontrol.Core
         private MidiIn _midiIn;
         private ControllerDefinition _controllerDef;
         private UserProfile _userProfile;
-        private ConcurrentQueue<MidiInMessageEventArgs> _eventQueue;
+        private ConcurrentQueue<ICommand> _commandQueue;
         private Timer _timer;
 
         public MidiController(string definitionPath, string profilePath, ILogger logger, IDeviceLocator deviceLocator)
         {
-            _eventQueue = new ConcurrentQueue<MidiInMessageEventArgs>();
+            _commandQueue = new ConcurrentQueue<ICommand>();
             _definitionPath = definitionPath;
             _profilePath = profilePath;
             _logger = logger;
@@ -74,28 +74,7 @@ namespace totalKontrol.Core
 
             StopTimer();
 
-            var commandsToExecute = new Dictionary<int, ICommand>();
-            while (_eventQueue.TryDequeue(out var e))
-            {
-                if (e.MidiEvent is ControlChangeEvent cce)
-                {
-                    var control = _controllerDef.Controls.FirstOrDefault(c => c.Controller == (int)cce.Controller);
-                    if (control != null)
-                    {
-                        var command = HandleButtonEvent(control, cce.ControllerValue);
-                        if (command != null && !commandsToExecute.ContainsKey(control.Controller))
-                        {
-                            commandsToExecute.Add(control.Controller, command);
-                        }
-                    }
-                }
-                else
-                {
-                    _logger.WriteLine($"Message 0x{e.RawMessage:X8} Event {e.MidiEvent}");
-                }
-            }
-
-            foreach (var command in commandsToExecute.Values)
+            while (_commandQueue.TryDequeue(out var command))
             {
                 command.ExecuteCommand();
             }
@@ -121,8 +100,25 @@ namespace totalKontrol.Core
 
         private void MidiIn_MessageReceived(object sender, MidiInMessageEventArgs e)
         {
-            _eventQueue.Enqueue(e);
-            StartTimer();
+
+            if (e.MidiEvent is ControlChangeEvent cce)
+            {
+                var control = _controllerDef.Controls.FirstOrDefault(c => c.Controller == (int)cce.Controller);
+                if (control != null)
+                {
+                    var command = HandleButtonEvent(control, cce.ControllerValue);
+                    if (command != null && !_commandQueue.Contains(command))
+                    {
+                        _commandQueue.Enqueue(command);
+                    }
+                    StartTimer();
+                }
+            }
+            else
+            {
+                _logger.WriteLine($"Message 0x{e.RawMessage:X8} Event {e.MidiEvent}");
+            }
+
         }
 
 

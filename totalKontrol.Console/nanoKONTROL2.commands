@@ -32,7 +32,7 @@
     },
     {
       "ControlName": "SOLO_\\d",
-      "Command": "SselectControlGroup"
+      "Command": "SelectControlGroup"
     },
     {
       "ControlName": "ARM_\\d",
